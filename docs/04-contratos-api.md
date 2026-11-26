@@ -1,0 +1,321 @@
+# Contratos de API — Mekano Registry Service API
+
+**Prefixo:** `/api/v4`
+**Base local:** `http://localhost:8081/api/v4`
+
+---
+
+## 1. Convenções
+
+- JSON em UTF-8.
+- Datas em ISO-8601 (`2026-11-26T10:00:00`).
+- Valores monetários como número decimal (`45.90`).
+- Paginação:
+  - query `page` (default `0`) e `size` (default `20`, máximo `100`);
+  - response com `content`, `page`, `size`, `totalElements`, `totalPages`.
+- Erros no padrão **RFC 7807** (`application/problem+json`):
+
+```json
+{
+  "type": "about:blank",
+  "title": "Recurso não encontrado",
+  "status": 404,
+  "detail": "Cliente não encontrado: 11111111-1111-1111-1111-111111111111",
+  "instance": "/api/v4/clientes/11111111-1111-1111-1111-111111111111"
+}
+```
+
+- `@RolesAllowed` comentado com `TODO` em todos os endpoints.
+
+---
+
+## 2. Clientes
+
+### 2.1 Criar
+
+```http
+POST /api/v4/clientes
+Content-Type: application/json
+
+{
+  "nome": "Cliente Exemplo",
+  "cpf": "52998224725",
+  "email": "cliente.exemplo@mekano.com.br",
+  "telefone": "11999999999",
+  "endereco": {
+    "logradouro": "Rua Exemplo",
+    "numero": "100",
+    "complemento": null,
+    "bairro": "Centro",
+    "cidade": "São Paulo",
+    "uf": "SP",
+    "cep": "01001000"
+  }
+}
+```
+
+Resposta `201`:
+
+```json
+{
+  "uuid": "11111111-1111-1111-1111-111111111111",
+  "nome": "Cliente Exemplo",
+  "cpf": "52998224725",
+  "email": "cliente.exemplo@mekano.com.br",
+  "telefone": "11999999999",
+  "endereco": {
+    "logradouro": "Rua Exemplo",
+    "numero": "100",
+    "complemento": null,
+    "bairro": "Centro",
+    "cidade": "São Paulo",
+    "uf": "SP",
+    "cep": "01001000"
+  },
+  "isActive": true,
+  "createdAt": "2026-11-26T10:00:00"
+}
+```
+
+### 2.2 Listar
+
+```http
+GET /api/v4/clientes?page=0&size=20&nome=Cliente&isActive=true
+```
+
+### 2.3 Buscar por UUID
+
+```http
+GET /api/v4/clientes/{uuid}
+```
+
+### 2.4 Atualizar
+
+```http
+PUT /api/v4/clientes/{uuid}
+```
+
+> CPF não é alterável após a criação.
+
+### 2.5 Desativar / reativar
+
+```http
+DELETE /api/v4/clientes/{uuid}
+PATCH  /api/v4/clientes/{uuid}/reativar
+```
+
+- `DELETE` = soft delete (`isActive=false`, `deletedAt`).
+- `PATCH /reativar` = `isActive=true`.
+
+### 2.6 Roles comentadas
+
+```java
+// TODO: habilitar quando autenticação entrar no escopo
+// @RolesAllowed({"admin", "atendente"})
+```
+
+Exclusão/reativação: `@RolesAllowed("admin")`.
+
+---
+
+## 3. Veículos
+
+### 3.1 Criar
+
+```http
+POST /api/v4/veiculos
+Content-Type: application/json
+
+{
+  "clienteUuid": "11111111-1111-1111-1111-111111111111",
+  "placa": "ABC1D23",
+  "marca": "Volkswagen",
+  "modelo": "Gol",
+  "ano": 2020
+}
+```
+
+Resposta `201`:
+
+```json
+{
+  "uuid": "22222222-2222-2222-2222-222222222222",
+  "clienteUuid": "11111111-1111-1111-1111-111111111111",
+  "placa": "ABC1D23",
+  "marca": "Volkswagen",
+  "modelo": "Gol",
+  "ano": 2020,
+  "isActive": true,
+  "createdAt": "2026-11-26T10:00:00"
+}
+```
+
+### 3.2 Listar / buscar / atualizar / desativar
+
+```http
+GET    /api/v4/veiculos?page=0&size=20&clienteUuid=...&placa=ABC1D23
+GET    /api/v4/veiculos/{uuid}
+PUT    /api/v4/veiculos/{uuid}
+DELETE /api/v4/veiculos/{uuid}
+PATCH  /api/v4/veiculos/{uuid}/reativar
+```
+
+Regras:
+
+- Cliente precisa existir e estar ativo.
+- Placa única entre veículos ativos.
+- Placa aceita padrão antigo (`ABC1234`) e Mercosul (`ABC1D23`).
+
+---
+
+## 4. Peças (catálogo)
+
+> **Sem estoque.** Saldo, reservado e mínimo pertencem ao Supplies.
+
+### 4.1 Criar
+
+```http
+POST /api/v4/pecas
+Content-Type: application/json
+
+{
+  "codigo": "PEA-001",
+  "descricao": "Filtro de Óleo",
+  "valorUnitario": 45.90
+}
+```
+
+Resposta `201`:
+
+```json
+{
+  "uuid": "55555555-5555-5555-5555-555555555555",
+  "codigo": "PEA-001",
+  "descricao": "Filtro de Óleo",
+  "valorUnitario": 45.90,
+  "isActive": true,
+  "createdAt": "2026-11-26T10:00:00"
+}
+```
+
+### 4.2 Listar / buscar / atualizar / desativar
+
+```http
+GET    /api/v4/pecas?page=0&size=20&codigo=PEA&descricao=Filtro&isActive=true
+GET    /api/v4/pecas/{uuid}
+PUT    /api/v4/pecas/{uuid}
+DELETE /api/v4/pecas/{uuid}
+PATCH  /api/v4/pecas/{uuid}/reativar
+```
+
+Regras:
+
+- Código único entre peças ativas.
+- Valor unitário > 0.
+- Não há endpoint de saldo/estoque no Registry.
+
+---
+
+## 5. Serviços
+
+### 5.1 Criar
+
+```http
+POST /api/v4/servicos
+Content-Type: application/json
+
+{
+  "nome": "Troca de Óleo",
+  "descricao": "Troca de óleo e filtro",
+  "valorUnitario": 150.00
+}
+```
+
+### 5.2 Listar / buscar / atualizar / desativar
+
+```http
+GET    /api/v4/servicos?page=0&size=20&nome=Troca&isActive=true
+GET    /api/v4/servicos/{uuid}
+PUT    /api/v4/servicos/{uuid}
+DELETE /api/v4/servicos/{uuid}
+PATCH  /api/v4/servicos/{uuid}/reativar
+```
+
+Regras:
+
+- Nome único entre serviços ativos.
+- Valor unitário > 0.
+
+---
+
+## 6. Endpoint interno — batch de peças
+
+### 6.1 Request
+
+```http
+POST /api/v4/internal/pecas/batch
+Content-Type: application/json
+
+{
+  "pecaUuids": [
+    "55555555-5555-5555-5555-555555555555",
+    "66666666-6666-6666-6666-666666666666",
+    "99999999-9999-9999-9999-999999999999"
+  ]
+}
+```
+
+### 6.2 Response `200`
+
+```json
+{
+  "pecas": [
+    {
+      "uuid": "55555555-5555-5555-5555-555555555555",
+      "codigo": "PEA-001",
+      "descricao": "Filtro de Óleo",
+      "valorUnitario": 45.90,
+      "isActive": true
+    },
+    {
+      "uuid": "66666666-6666-6666-6666-666666666666",
+      "codigo": "PEA-002",
+      "descricao": "Pastilha de Freio",
+      "valorUnitario": 120.00,
+      "isActive": true
+    }
+  ],
+  "naoEncontradas": [
+    "99999999-9999-9999-9999-999999999999"
+  ]
+}
+```
+
+### 6.3 Regras
+
+- Lista vazia → `400`.
+- Mais de 100 UUIDs → `400`.
+- Peças inativas retornam `isActive=false`.
+- Peças inexistentes retornam em `naoEncontradas`.
+- `@RolesAllowed("service:supplies-purchase")` comentado com `TODO`.
+
+---
+
+## 7. Códigos de erro
+
+| Status | Quando |
+|---|---|
+| `400` | Validação de entrada, CPF/placa/e-mail inválido, lote vazio/grande |
+| `404` | Recurso não encontrado |
+| `409` | Duplicidade (CPF, placa, código, nome) ou conflito de estado |
+| `422` | Regra de negócio não atendida (quando aplicável) |
+| `500` | Erro inesperado |
+
+---
+
+## 8. OpenAPI
+
+- Swagger UI: `http://localhost:8081/q/swagger-ui`
+- OpenAPI JSON: `http://localhost:8081/q/openapi`
+
+Todos os schemas devem refletir o prefixo `/api/v4` e os DTOs reais.
