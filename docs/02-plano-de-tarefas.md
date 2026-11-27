@@ -39,34 +39,34 @@ Criar a base do projeto, a documentação e o ambiente local.
 - [x] Criar `README.md`.
 - [x] Criar `.gitignore`.
 - [x] Criar `docs/` com escopo, arquitetura, plano, modelo, contratos, testes, operação, decisões e ADR.
-- [ ] Criar POM pai e módulos:
+- [x] Criar POM pai e módulos:
   - `registry-domain`
   - `registry-application`
   - `registry-infrastructure`
   - `registry-rest`
-- [ ] Configurar Java 17, Quarkus 3.36.0, Lombok, MapStruct, Jandex, Surefire e JaCoCo.
-- [ ] Configurar `quarkus.rest.path=/api/v4`.
-- [ ] Configurar datasource PostgreSQL, Flyway, OpenAPI, health, metrics e logs.
-- [ ] Criar `docker-compose.yml` com `registry-db` e `registry-api`.
-- [ ] Criar `.env.example`.
-- [ ] Criar `Dockerfile`.
-- [ ] Criar CI `.github/workflows/ci.yml` com `mvn -B verify`.
-- [ ] Criar ADRs:
+- [x] Configurar Java 17, Quarkus 3.36.0, Lombok, MapStruct, Jandex, Surefire e JaCoCo.
+- [x] Configurar `quarkus.rest.path=/api/v4`.
+- [x] Configurar datasource PostgreSQL, Flyway, OpenAPI, health, metrics e logs.
+- [x] Criar `docker-compose.yml` com `registry-db` e `registry-api`.
+- [x] Criar `.env.example`.
+- [x] Criar `Dockerfile`.
+- [x] Criar CI `.github/workflows/ci.yml` com `mvn -B verify`.
+- [x] Criar ADRs:
   - `ADR-001-stack.md`
   - `ADR-002-postgresql.md`
   - `ADR-003-catalogo-de-pecas.md`
   - `ADR-004-comunicacao-rest.md`
   - `ADR-005-migrations-finais.md`
-- [ ] Abrir PR `start → main`.
+- [x] Abrir PR `start → main`.
 
 ### Critérios de aceite
 
-- [ ] `mvn -B verify` executa sem erros (mesmo sem domínio implementado).
-- [ ] `docker compose config` válido.
-- [ ] API sobe em `http://localhost:8081/api/v4`.
-- [ ] `/q/health` responde `UP`.
-- [ ] README e `docs/` revisados.
-- [ ] Nenhum push direto em `main`.
+- [x] `mvn -B verify` executa sem erros (mesmo sem domínio implementado).
+- [x] `docker compose config` válido.
+- [x] API sobe em `http://localhost:8081/api/v4`.
+- [x] `/q/health` responde `UP`.
+- [x] README e `docs/` revisados.
+- [x] Nenhum push direto em `main`.
 
 ---
 
@@ -80,45 +80,45 @@ Implementar os CRUDs de clientes e veículos, com validações e migrations fina
 
 #### Clientes
 
-- [ ] Domínio `Cliente` + VOs `Cpf`, `Email`, `Telefone`, `Endereco`.
-- [ ] `ClienteService` + commands + ports.
-- [ ] `ClienteEntity`, repositório Panache, mapper.
-- [ ] Migration `V1__create_clientes.sql`.
-- [ ] `ClienteResource` + DTOs + paginação + filtros.
-- [ ] Validação de CPF, e-mail, telefone e CEP.
-- [ ] Soft delete/reativação.
-- [ ] `@RolesAllowed` comentado:
+- [x] Domínio `Cliente` + VOs `Cpf`, `Email`, `Telefone`, `Endereco`.
+- [x] `ClienteService` + commands + ports.
+- [x] `ClienteEntity`, repositório Panache, mapper.
+- [x] Migration `V1__create_clientes.sql`.
+- [x] `ClienteResource` + DTOs + paginação + filtros.
+- [x] Validação de CPF, e-mail, telefone e CEP.
+- [x] Soft delete/reativação.
+- [x] `@RolesAllowed` comentado:
   - leitura/escrita: `admin`, `atendente`;
   - exclusão/reativação: `admin`.
 
 #### Veículos
 
-- [ ] Domínio `Veiculo` + `PlacaVeiculo`.
-- [ ] `VeiculoService` + commands + ports.
-- [ ] `VeiculoEntity`, repositório Panache, mapper.
-- [ ] Migration `V2__create_veiculos.sql` com FK para `clientes(uuid)`.
-- [ ] `VeiculoResource` + DTOs + filtros por cliente/placa.
-- [ ] Validação de cliente ativo.
-- [ ] `@RolesAllowed` comentado:
+- [x] Domínio `Veiculo` + `PlacaVeiculo`.
+- [x] `VeiculoService` + commands + ports.
+- [x] `VeiculoEntity`, repositório Panache, mapper.
+- [x] Migration `V2__create_veiculos.sql` com FK para `clientes(uuid)`.
+- [x] `VeiculoResource` + DTOs + filtros por cliente/placa.
+- [x] Validação de cliente ativo.
+- [x] `@RolesAllowed` comentado:
   - leitura/escrita: `admin`, `atendente`;
   - exclusão/reativação: `admin`.
 
 #### Testes mínimos e documentação
 
-- [ ] Testes unitários dos VOs e serviços.
-- [ ] Teste de integração dos repositórios.
-- [ ] Testes REST dos resources.
-- [ ] Atualizar `docs/03-modelo-de-dados.md` e `docs/04-contratos-api.md`.
+- [x] Testes unitários dos VOs e serviços.
+- [x] Teste de integração dos repositórios.
+- [x] Testes REST dos resources.
+- [x] Atualizar `docs/03-modelo-de-dados.md` e `docs/04-contratos-api.md`.
 - [ ] Abrir PR.
 
 ### Critérios de aceite
 
-- [ ] CRUD de clientes e veículos em `/api/v4`.
-- [ ] Validações retornando `400`/`404`/`409` conforme o caso.
-- [ ] Paginação e filtros funcionando.
-- [ ] Migrations aplicadas do zero.
-- [ ] CI verde.
-- [ ] Sem campos de estoque em qualquer tabela.
+- [x] CRUD de clientes e veículos em `/api/v4`.
+- [x] Validações retornando `400`/`404`/`409` conforme o caso.
+- [x] Paginação e filtros funcionando.
+- [ ] Migrations aplicadas do zero (validar com PostgreSQL/Docker no PR; testes usam H2).
+- [ ] CI verde (build local `mvn -B verify` verde; validar no PR).
+- [x] Sem campos de estoque em qualquer tabela.
 
 ---
 

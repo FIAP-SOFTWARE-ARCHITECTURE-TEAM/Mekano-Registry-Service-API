@@ -3,6 +3,8 @@
 **Prefixo:** `/api/v4`
 **Base local:** `http://localhost:8081/api/v4`
 
+> **Status:** clientes e veículos implementados no Sprint 1. Peças, serviços e batch interno entram no Sprint 2.
+
 ---
 
 ## 1. Convenções
@@ -12,6 +14,7 @@
 - Valores monetários como número decimal (`45.90`).
 - Paginação:
   - query `page` (default `0`) e `size` (default `20`, máximo `100`);
+  - query `sort` no formato `campo,asc|desc` (ex.: `nome,asc`, `placa,asc`);
   - response com `content`, `page`, `size`, `totalElements`, `totalPages`.
 - Erros no padrão **RFC 7807** (`application/problem+json`):
 
@@ -80,8 +83,10 @@ Resposta `201`:
 ### 2.2 Listar
 
 ```http
-GET /api/v4/clientes?page=0&size=20&nome=Cliente&isActive=true
+GET /api/v4/clientes?page=0&size=20&sort=nome,asc&nome=Cliente&isActive=true
 ```
+
+Filtros: `nome` (contém, case-insensitive) e `isActive`.
 
 ### 2.3 Buscar por UUID
 
@@ -153,18 +158,23 @@ Resposta `201`:
 ### 3.2 Listar / buscar / atualizar / desativar
 
 ```http
-GET    /api/v4/veiculos?page=0&size=20&clienteUuid=...&placa=ABC1D23
+GET    /api/v4/veiculos?page=0&size=20&sort=placa,asc&clienteUuid=...&placa=ABC1D23&isActive=true
 GET    /api/v4/veiculos/{uuid}
 PUT    /api/v4/veiculos/{uuid}
 DELETE /api/v4/veiculos/{uuid}
 PATCH  /api/v4/veiculos/{uuid}/reativar
 ```
 
+Filtros: `clienteUuid`, `placa` (contém, case-insensitive) e `isActive`.
+
 Regras:
 
 - Cliente precisa existir e estar ativo.
 - Placa única entre veículos ativos.
 - Placa aceita padrão antigo (`ABC1234`) e Mercosul (`ABC1D23`).
+- Placa e cliente são imutáveis após a criação; `PUT` altera apenas marca, modelo e ano.
+- `DELETE` executa soft delete; `PATCH /reativar` reativa.
+- Erros: `400` (validação), `404` (cliente/veículo inexistente) e `409` (CPF/placa duplicado, cliente inativo).
 
 ---
 
