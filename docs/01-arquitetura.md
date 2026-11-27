@@ -106,11 +106,53 @@ Supplies ──POST /api/v4/internal/pecas/batch──► Registry
 Registry ──nenhuma chamada──► Supplies
 ```
 
+```mermaid
+flowchart LR
+    supplies["Supplies API<br/>estoque e requisicoes"]
+    registry["Registry API<br/>catalogo de pecas"]
+    suppliesDb[("mekano_supplies")]
+    registryDb[("mekano_registry")]
+
+    supplies -->|POST /api/v4/internal/pecas/batch| registry
+    supplies --> suppliesDb
+    registry --> registryDb
+```
+
+```mermaid
+sequenceDiagram
+    participant Caller as Cliente Supplies
+    participant Service as RequisicaoCompraService
+    participant Adapter as RegistryPecaCatalogAdapter
+    participant Registry as Registry batch API
+    participant Database as Banco Supplies
+
+    Caller->>Service: Criar requisicao com pecas
+    Service->>Adapter: buscarPorUuids(pecaUuids)
+    Adapter->>Registry: POST /api/v4/internal/pecas/batch
+    Registry-->>Adapter: pecas + naoEncontradas
+    Adapter->>Adapter: Validar contrato e mapear snapshots
+    Adapter-->>Service: Catalogo validado
+    alt UUID inexistente
+        Service-->>Caller: 404
+    else peca inativa
+        Service-->>Caller: 409
+    else Registry indisponivel, timeout ou resposta invalida
+        Adapter-->>Service: 503
+        Service-->>Caller: 503
+    else todas as pecas ativas
+        Service->>Database: Salvar requisicao e snapshots
+        Database-->>Service: Requisicao persistida
+        Service-->>Caller: 201
+    end
+```
+
 - Comunicação síncrona REST/JSON.
 - Sem broker, sem eventos, sem saga.
 - Sem acesso ao banco do outro serviço.
-- Timeout e tratamento de erro no cliente do Supplies.
+- Timeout configurável por `REGISTRY_TIMEOUT_MS` (3 segundos por padrão); falhas de conexão, HTTP 5xx, timeout e resposta fora do contrato resultam em `503`.
 - Versionamento via `/api/v4`.
+
+O cenário E2E reproduzível está descrito em [`docs/06-operacao-local.md`](06-operacao-local.md) e roda em um Compose isolado com bancos descartáveis.
 
 ---
 

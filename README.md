@@ -2,7 +2,7 @@
 
 API de cadastro e catálogo do projeto **Mekano** — **Fase 4**.
 
-> **Status atual:** Sprints 0–3 implementados — fundação, CRUDs, batch de peças, seed, OpenAPI e coleção Postman base. Build e suíte local verificados.
+> **Status atual:** Implementação dos Sprints 0–4 concluída — CRUDs, catálogo, batch, seed, OpenAPI, hardening e integração E2E com o Supplies. Validação local verde; PR e tag `v4.0.0` ficam para a entrega.
 
 > **Prefixo de todos os endpoints:** `/api/v4`
 >
@@ -16,7 +16,7 @@ API de cadastro e catálogo do projeto **Mekano** — **Fase 4**.
 | 1 | Clientes e veículos | ✅ Implementado |
 | 2 | Peças, serviços e batch interno | ✅ Implementado |
 | 3 | Seed, OpenAPI, Postman base e documentação | ✅ Implementado |
-| 4 | Integração, hardening e release | ⏳ Pendente |
+| 4 | Integração e hardening | ✅ Implementado; PR/tag de release pendentes |
 | 5 | Testes e Postman | ⏳ Pendente |
 
 ---
@@ -234,6 +234,10 @@ Detalhes em [`docs/07-decisoes-e-riscos.md`](docs/07-decisoes-e-riscos.md).
   - `test/sprint-5-testes-e-postman`
 - Durante os sprints 1–4, cada PR mantém o build verde com testes mínimos das novas classes.
 - Estratégia completa em [`docs/05-testes-e-postman.md`](docs/05-testes-e-postman.md).
+
+### E2E Registry + Supplies
+
+O Compose isolado e o teste de integração ficam em [`docker-compose.e2e.yml`](docker-compose.e2e.yml) e [`scripts/Test-RegistrySuppliesE2E.ps1`](scripts/Test-RegistrySuppliesE2E.ps1). Instruções para subir, testar e remover o ambiente estão em [`docs/06-operacao-local.md`](docs/06-operacao-local.md).
 
 ---
 
