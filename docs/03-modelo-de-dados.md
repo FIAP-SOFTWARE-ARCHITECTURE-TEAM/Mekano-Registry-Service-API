@@ -112,6 +112,8 @@
 
 > **Não existem** `saldo_atual`, `saldo_reservado` ou `estoque_minimo`. Esses campos pertencem ao Supplies.
 
+A migration `V3__create_pecas.sql` cria a tabela final e o `CHECK (valor_unitario > 0)`. O código é único somente entre peças ativas; após soft delete pode ser reutilizado, mas a peça antiga não poderá ser reativada enquanto houver outra peça ativa com o mesmo código.
+
 ### 3.4 `servicos`
 
 | Coluna | Tipo | Regras |
@@ -132,6 +134,8 @@
 
 - `ux_servicos_uuid` UNIQUE (`uuid`)
 - `ux_servicos_nome_active` UNIQUE (`nome`) WHERE `is_active = TRUE AND deleted_at IS NULL`
+
+A migration `V4__create_servicos.sql` cria a tabela final e o `CHECK (valor_unitario > 0)`. O nome pode ser reutilizado após soft delete; a reativação da entidade antiga é recusada se houver conflito.
 
 ---
 

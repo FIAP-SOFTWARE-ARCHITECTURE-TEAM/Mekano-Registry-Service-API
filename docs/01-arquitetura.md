@@ -20,7 +20,7 @@ O Registry é um serviço Quarkus independente, com banco próprio, seguindo Cle
 └─────────────────────────────────────────────┘
 ```
 
-O serviço **não depende** do Supplies. O único contrato de saída é o endpoint interno de batch de peças, consumido pelo Supplies.
+O serviço **não depende** do Supplies. O endpoint interno de batch de peças é consumido pelo Supplies; Registry não faz chamadas ao outro serviço.
 
 ---
 
@@ -129,6 +129,8 @@ Registry ──nenhuma chamada──► Supplies
 - Services `@ApplicationScoped` com injeção por construtor.
 - `@Transactional` nos métodos de escrita.
 - Validações de negócio e orquestração.
+- Catálogo de peças valida unicidade do código e não contém operações/saldos de estoque.
+- `PecaServicePort.findByIds` atende ao batch usado pelo Supplies, incluindo peças inativas.
 - Logs com `io.quarkus.logging.Log` (INFO/WARN; ERROR só no mapper).
 - Sem dependência de JAX-RS/JPA.
 
@@ -145,6 +147,7 @@ Registry ──nenhuma chamada──► Supplies
 - Resources `@RequestScoped`.
 - DTOs de entrada/saída.
 - Bean Validation.
+- CRUDs paginados de peças e serviços; batch em `POST /api/v4/internal/pecas/batch` limitado a 100 UUIDs.
 - `ApiExceptionMapper` com RFC 7807 (`application/problem+json`).
 - Paginação padrão.
 - `@RolesAllowed` comentado com `TODO`.

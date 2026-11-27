@@ -132,48 +132,48 @@ Implementar o catálogo de peças, os serviços e o endpoint interno de batch co
 
 #### Peças (catálogo)
 
-- [ ] Domínio `Peca` com `codigo`, `descricao`, `valorUnitario`, `isActive`.
-- [ ] **Sem** `saldoAtual`, `saldoReservado` ou `estoqueMinimo`.
-- [ ] `PecaService` + commands + ports.
-- [ ] `PecaEntity`, repositório Panache, mapper.
-- [ ] Migration `V3__create_pecas.sql`.
-- [ ] `PecaResource` + DTOs + filtros por código/descrição/ativo.
-- [ ] `@RolesAllowed("admin")` comentado.
+- [x] Domínio `Peca` com `codigo`, `descricao`, `valorUnitario`, `isActive`.
+- [x] **Sem** `saldoAtual`, `saldoReservado` ou `estoqueMinimo`.
+- [x] `PecaService` + commands + ports.
+- [x] `PecaEntity`, repositório Panache, mapper.
+- [x] Migration `V3__create_pecas.sql`.
+- [x] `PecaResource` + DTOs + filtros por código/descrição/ativo.
+- [x] `@RolesAllowed("admin")` comentado.
 
 #### Serviços
 
-- [ ] Domínio `Servico`.
-- [ ] `ServicoService` + commands + ports.
-- [ ] `ServicoEntity`, repositório Panache, mapper.
-- [ ] Migration `V4__create_servicos.sql`.
-- [ ] `ServicoResource` + DTOs + filtros.
-- [ ] `@RolesAllowed("admin")` comentado.
+- [x] Domínio `Servico`.
+- [x] `ServicoService` + commands + ports.
+- [x] `ServicoEntity`, repositório Panache, mapper.
+- [x] Migration `V4__create_servicos.sql`.
+- [x] `ServicoResource` + DTOs + filtros.
+- [x] `@RolesAllowed("admin")` comentado.
 
 #### Batch interno
 
-- [ ] `PecaBatchResource` em `/api/v4/internal/pecas/batch`.
-- [ ] Request `{ "pecaUuids": [...] }`.
-- [ ] Response `{ "pecas": [...], "naoEncontradas": [...] }`.
-- [ ] Limite de lote (ex.: 100 UUIDs) e validação de lista vazia.
-- [ ] Retornar peças inativas com `isActive=false`.
-- [ ] `@RolesAllowed("service:supplies-purchase")` comentado.
-- [ ] Testes de contrato do batch.
+- [x] `PecaBatchResource` em `/api/v4/internal/pecas/batch`.
+- [x] Request `{ "pecaUuids": [...] }`.
+- [x] Response `{ "pecas": [...], "naoEncontradas": [...] }`.
+- [x] Limite de lote de 100 UUIDs e validação de lista vazia.
+- [x] Retornar peças inativas com `isActive=false`.
+- [x] `@RolesAllowed("service:supplies-purchase")` comentado.
+- [x] Testes de contrato do batch (request/response e validações).
 
 #### Testes mínimos e documentação
 
-- [ ] Testes unitários de `Peca`/`Servico`.
-- [ ] Testes de integração dos repositórios.
-- [ ] Testes REST dos resources e do batch.
-- [ ] Atualizar `docs/03-modelo-de-dados.md`, `docs/04-contratos-api.md` e `docs/01-arquitetura.md`.
+- [x] Testes unitários de `Peca`/`Servico`.
+- [x] Testes de integração dos repositórios.
+- [x] Testes REST dos resources e do batch.
+- [x] Atualizar `docs/03-modelo-de-dados.md`, `docs/04-contratos-api.md` e `docs/01-arquitetura.md`.
 - [ ] Abrir PR.
 
 ### Critérios de aceite
 
-- [ ] CRUD de peças e serviços em `/api/v4`.
-- [ ] Nenhum campo de estoque na tabela `pecas`.
-- [ ] Batch funcionando e documentado.
-- [ ] Supplies consegue validar peças pelo batch.
-- [ ] CI verde.
+- [x] CRUD de peças e serviços em `/api/v4`.
+- [x] Nenhum campo de estoque na tabela `pecas`.
+- [x] Batch funcionando e documentado.
+- [x] Contrato do batch compatível com o cliente do Supplies.
+- [x] CI verde (`mvn -B verify -pl registry-rest -am`).
 
 ---
 

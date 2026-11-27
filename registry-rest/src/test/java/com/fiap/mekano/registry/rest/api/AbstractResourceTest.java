@@ -1,6 +1,8 @@
 package com.fiap.mekano.registry.rest.api;
 
 import com.fiap.mekano.registry.infrastructure.repository.ClientePanacheRepository;
+import com.fiap.mekano.registry.infrastructure.repository.PecaPanacheRepository;
+import com.fiap.mekano.registry.infrastructure.repository.ServicoPanacheRepository;
 import com.fiap.mekano.registry.infrastructure.repository.VeiculoPanacheRepository;
 import io.quarkus.narayana.jta.QuarkusTransaction;
 import jakarta.inject.Inject;
@@ -17,9 +19,17 @@ abstract class AbstractResourceTest {
     @Inject
     VeiculoPanacheRepository veiculoPanacheRepository;
 
+    @Inject
+    PecaPanacheRepository pecaPanacheRepository;
+
+    @Inject
+    ServicoPanacheRepository servicoPanacheRepository;
+
     @BeforeEach
     void limparBanco() {
         QuarkusTransaction.requiringNew().run(() -> {
+            pecaPanacheRepository.deleteAll();
+            servicoPanacheRepository.deleteAll();
             veiculoPanacheRepository.deleteAll();
             clientePanacheRepository.deleteAll();
         });
