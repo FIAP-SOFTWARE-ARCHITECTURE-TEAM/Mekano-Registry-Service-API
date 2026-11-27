@@ -8,6 +8,7 @@ import com.fiap.mekano.registry.rest.dto.ClientePageResponse;
 import com.fiap.mekano.registry.rest.dto.ClienteResponse;
 import com.fiap.mekano.registry.rest.dto.CreateClienteRequest;
 import com.fiap.mekano.registry.rest.dto.UpdateClienteRequest;
+import com.fiap.mekano.registry.rest.exception.ProblemDetail;
 import com.fiap.mekano.registry.rest.mapper.ClienteDtoMapper;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -28,6 +29,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.net.URI;
@@ -57,6 +61,12 @@ public class ClienteResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Cadastrar cliente", description = "Cadastra um novo cliente no sistema.")
+    @APIResponse(responseCode = "201", description = "Cliente criado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ClienteResponse.class)))
+    @APIResponse(responseCode = "400", description = "Dados invalidos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
+    @APIResponse(responseCode = "409", description = "CPF ja cadastrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
     public Response create(@Valid CreateClienteRequest request, @Context UriInfo uriInfo) {
         CreateClienteCommand command = clienteDtoMapper.toCommand(request);
         Cliente cliente = clienteService.execute(command);
@@ -73,6 +83,8 @@ public class ClienteResource {
     // @RolesAllowed({"admin", "atendente"})
     @GET
     @Operation(summary = "Listar clientes", description = "Lista clientes com paginacao e filtros.")
+    @APIResponse(responseCode = "200", description = "Lista paginada de clientes",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ClientePageResponse.class)))
     public Response listAll(
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("20") int size,
@@ -106,6 +118,10 @@ public class ClienteResource {
     @GET
     @Path("/{uuid}")
     @Operation(summary = "Buscar cliente por UUID", description = "Retorna os dados de um cliente especifico.")
+    @APIResponse(responseCode = "200", description = "Cliente encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ClienteResponse.class)))
+    @APIResponse(responseCode = "404", description = "Cliente nao encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
     public Response findById(@PathParam("uuid") UUID uuid) {
         Cliente cliente = clienteService.findById(uuid);
         return Response.ok(clienteDtoMapper.toResponse(cliente)).build();
@@ -117,6 +133,12 @@ public class ClienteResource {
     @Path("/{uuid}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Atualizar cliente", description = "Atualiza os dados cadastrais de um cliente. CPF e imutavel.")
+    @APIResponse(responseCode = "200", description = "Cliente atualizado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ClienteResponse.class)))
+    @APIResponse(responseCode = "400", description = "Dados invalidos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
+    @APIResponse(responseCode = "404", description = "Cliente nao encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
     public Response update(@PathParam("uuid") UUID uuid, @Valid UpdateClienteRequest request) {
         UpdateClienteCommand command = clienteDtoMapper.toCommand(request);
         Cliente cliente = clienteService.update(uuid, command);
@@ -128,6 +150,9 @@ public class ClienteResource {
     @DELETE
     @Path("/{uuid}")
     @Operation(summary = "Desativar cliente", description = "Executa soft delete do cliente (isActive=false).")
+    @APIResponse(responseCode = "204", description = "Cliente desativado")
+    @APIResponse(responseCode = "404", description = "Cliente nao encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
     public Response delete(@PathParam("uuid") UUID uuid) {
         clienteService.delete(uuid);
         return Response.noContent().build();
@@ -138,6 +163,11 @@ public class ClienteResource {
     @PATCH
     @Path("/{uuid}/reativar")
     @Operation(summary = "Reativar cliente", description = "Reativa um cliente previamente desativado.")
+    @APIResponse(responseCode = "204", description = "Cliente reativado")
+    @APIResponse(responseCode = "404", description = "Cliente nao encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
+    @APIResponse(responseCode = "409", description = "CPF ja utilizado por outro cliente ativo",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
     public Response reactivate(@PathParam("uuid") UUID uuid) {
         clienteService.reactivate(uuid);
         return Response.noContent().build();

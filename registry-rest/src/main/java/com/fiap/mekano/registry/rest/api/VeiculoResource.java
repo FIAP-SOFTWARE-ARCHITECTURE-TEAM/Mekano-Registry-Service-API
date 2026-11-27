@@ -8,6 +8,7 @@ import com.fiap.mekano.registry.rest.dto.CreateVeiculoRequest;
 import com.fiap.mekano.registry.rest.dto.UpdateVeiculoRequest;
 import com.fiap.mekano.registry.rest.dto.VeiculoPageResponse;
 import com.fiap.mekano.registry.rest.dto.VeiculoResponse;
+import com.fiap.mekano.registry.rest.exception.ProblemDetail;
 import com.fiap.mekano.registry.rest.mapper.VeiculoDtoMapper;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -28,6 +29,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.net.URI;
@@ -57,6 +61,14 @@ public class VeiculoResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Cadastrar veiculo", description = "Cadastra um veiculo vinculado a um cliente existente e ativo.")
+    @APIResponse(responseCode = "201", description = "Veiculo criado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = VeiculoResponse.class)))
+    @APIResponse(responseCode = "400", description = "Dados invalidos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
+    @APIResponse(responseCode = "404", description = "Cliente nao encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
+    @APIResponse(responseCode = "409", description = "Placa duplicada ou cliente inativo",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
     public Response create(@Valid CreateVeiculoRequest request, @Context UriInfo uriInfo) {
         CreateVeiculoCommand command = veiculoDtoMapper.toCommand(request);
         Veiculo veiculo = veiculoService.execute(command);
@@ -73,6 +85,8 @@ public class VeiculoResource {
     // @RolesAllowed({"admin", "atendente"})
     @GET
     @Operation(summary = "Listar veiculos", description = "Lista veiculos com paginacao e filtros por cliente, placa e status.")
+    @APIResponse(responseCode = "200", description = "Lista paginada de veiculos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = VeiculoPageResponse.class)))
     public Response listAll(
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("20") int size,
@@ -107,6 +121,10 @@ public class VeiculoResource {
     @GET
     @Path("/{uuid}")
     @Operation(summary = "Buscar veiculo por UUID", description = "Retorna os dados de um veiculo especifico.")
+    @APIResponse(responseCode = "200", description = "Veiculo encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = VeiculoResponse.class)))
+    @APIResponse(responseCode = "404", description = "Veiculo nao encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
     public Response findById(@PathParam("uuid") UUID uuid) {
         Veiculo veiculo = veiculoService.findById(uuid);
         return Response.ok(veiculoDtoMapper.toResponse(veiculo)).build();
@@ -118,6 +136,12 @@ public class VeiculoResource {
     @Path("/{uuid}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Atualizar veiculo", description = "Atualiza marca, modelo e ano. Placa e cliente sao imutaveis.")
+    @APIResponse(responseCode = "200", description = "Veiculo atualizado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = VeiculoResponse.class)))
+    @APIResponse(responseCode = "400", description = "Dados invalidos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
+    @APIResponse(responseCode = "404", description = "Veiculo nao encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
     public Response update(@PathParam("uuid") UUID uuid, @Valid UpdateVeiculoRequest request) {
         UpdateVeiculoCommand command = veiculoDtoMapper.toCommand(request);
         Veiculo veiculo = veiculoService.update(uuid, command);
@@ -129,6 +153,9 @@ public class VeiculoResource {
     @DELETE
     @Path("/{uuid}")
     @Operation(summary = "Desativar veiculo", description = "Executa soft delete do veiculo (isActive=false).")
+    @APIResponse(responseCode = "204", description = "Veiculo desativado")
+    @APIResponse(responseCode = "404", description = "Veiculo nao encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
     public Response delete(@PathParam("uuid") UUID uuid) {
         veiculoService.delete(uuid);
         return Response.noContent().build();
@@ -139,6 +166,11 @@ public class VeiculoResource {
     @PATCH
     @Path("/{uuid}/reativar")
     @Operation(summary = "Reativar veiculo", description = "Reativa um veiculo previamente desativado.")
+    @APIResponse(responseCode = "204", description = "Veiculo reativado")
+    @APIResponse(responseCode = "404", description = "Veiculo nao encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
+    @APIResponse(responseCode = "409", description = "Placa em uso por outro veiculo ativo",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
     public Response reactivate(@PathParam("uuid") UUID uuid) {
         veiculoService.reactivate(uuid);
         return Response.noContent().build();

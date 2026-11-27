@@ -87,31 +87,14 @@ Origem: `../Mekano-API/*/src/test`.
 
 ## 3. Migração do Postman
 
-Origem: `../Mekano-API/newman/Mekano_API_V2.0.postman_collection.json`.
+Os artefatos base do Sprint 3 estão em:
 
-Destino: `docs/postman/Mekano-Registry.postman_collection.json`.
+- `docs/postman/Mekano-Registry.postman_collection.json`
+- `docs/postman/Mekano-Registry-Local.postman_environment.json`
 
-Passos:
+Importe ambos no Postman e selecione o environment **Mekano Registry Local**. A coleção usa `baseUrl` e UUIDs fixos do seed e contém consultas de leitura e a chamada do batch interno para evitar alterar os dados seeded.
 
-1. Copiar a coleção de origem.
-2. Manter apenas as requisições de:
-   - clientes;
-   - veículos;
-   - peças (catálogo);
-   - serviços;
-   - batch interno de peças.
-3. Remover requisições de estoque, requisição de compra, NF, OS, orçamento, pagamento, WhatsApp e auth.
-4. Alterar a `baseUrl` para `http://localhost:8081/api/v4`.
-5. Atualizar variáveis:
-   - `clienteUuid = 11111111-1111-1111-1111-111111111111`
-   - `veiculoUuid = 22222222-2222-2222-2222-222222222222`
-   - `servico1Uuid = 33333333-3333-3333-3333-333333333333`
-   - `servico2Uuid = 44444444-4444-4444-4444-444444444444`
-   - `peca1Uuid = 55555555-5555-5555-5555-555555555555`
-   - `peca2Uuid = 66666666-6666-6666-6666-666666666666`
-6. Criar environment `Mekano Registry Local` com `baseUrl`.
-7. Validar a coleção com o seed aplicado.
-8. Documentar no README e em `docs/06-operacao-local.md`.
+As requisições de criação/alteração e a migração integral dos cenários Newman da coleção original permanecem no escopo da branch final `test/sprint-5-testes-e-postman`. A coleção base do Sprint 3 não contém operações destrutivas.
 
 ---
 

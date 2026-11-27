@@ -185,32 +185,32 @@ Fechar os dados de demonstração, a documentação OpenAPI/Postman e a document
 
 ### Tarefas
 
-- [ ] Migration `V5__seed_dados_iniciais.sql`:
+- [x] Migration `V5__seed_dados_iniciais.sql`:
   - 1 cliente;
   - 1 veículo;
   - 2 serviços;
   - 2 peças (catálogo).
-- [ ] UUIDs fixos documentados.
-- [ ] `ON CONFLICT DO NOTHING` para tolerar reexecução local.
-- [ ] Teste de integração validando o seed.
-- [ ] OpenAPI final com todos os endpoints e schemas.
-- [ ] Postman base `docs/postman/Mekano-Registry.postman_collection.json` com:
+- [x] UUIDs fixos documentados.
+- [x] `ON CONFLICT DO NOTHING` para tolerar reexecução local.
+- [x] Teste de integração validando o seed.
+- [x] OpenAPI final com todos os endpoints e schemas.
+- [x] Postman base `docs/postman/Mekano-Registry.postman_collection.json` com:
   - base URL `http://localhost:8081/api/v4`;
   - variáveis de ambiente;
   - UUIDs do seed.
-- [ ] README final: setup, DBeaver, endpoints, roles, testes.
-- [ ] `docs/06-operacao-local.md` revisado.
-- [ ] Hardening: erros, validação, logs, health, metrics, paginação.
+- [x] README final: setup, DBeaver, endpoints, roles, testes.
+- [x] `docs/06-operacao-local.md` revisado.
+- [x] Hardening: erros, validação, logs, health, metrics, paginação.
 - [ ] Abrir PR.
 
 ### Critérios de aceite
 
-- [ ] `docker compose down -v && docker compose up -d --build` aplica schema + seed.
-- [ ] Seed visível no DBeaver.
-- [ ] Swagger completo em `/q/swagger-ui`.
-- [ ] Postman base executável.
-- [ ] README e docs revisados.
-- [ ] CI verde.
+- [x] Migrations V1–V5 aplicam schema + seed em PostgreSQL 16 descartável.
+- [x] Seed validado no PostgreSQL e no teste de integração.
+- [x] Swagger/OpenAPI validado com paths e schemas esperados.
+- [ ] Postman base executável contra uma instância ativa.
+- [x] README e docs revisados.
+- [x] CI verde (`mvnw -B verify -pl registry-rest -am`).
 
 ---
 
