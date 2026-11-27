@@ -1,0 +1,54 @@
+services:
+  registry-db:
+    image: postgres:16-alpine
+    container_name: registry-db
+    restart: unless-stopped
+    ports:
+      - "${REGISTRY_DB_PORT:-5433}:5432"
+    environment:
+      POSTGRES_DB: ${REGISTRY_DB_NAME:-mekano_registry}
+      POSTGRES_USER: ${REGISTRY_DB_USER:-mekano}
+      POSTGRES_PASSWORD: ${REGISTRY_DB_PASSWORD:-mekano}
+    volumes:
+      - registry_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${REGISTRY_DB_USER:-mekano} -d ${REGISTRY_DB_NAME:-mekano_registry}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - registry-net
+
+  registry-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: registry-api
+    restart: unless-stopped
+    ports:
+      - "${REGISTRY_API_PORT:-8081}:8081"
+    environment:
+      REGISTRY_DB_URL: jdbc:postgresql://registry-db:5432/${REGISTRY_DB_NAME:-mekano_registry}
+      REGISTRY_DB_USER: ${REGISTRY_DB_USER:-mekano}
+      REGISTRY_DB_PASSWORD: ${REGISTRY_DB_PASSWORD:-mekano}
+      QUARKUS_PROFILE: prod
+    depends_on:
+      registry-db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:8081/q/health/live || exit 1" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    networks:
+      - registry-net
+
+networks:
+  registry-net:
+    driver: bridge
+
+volumes:
+  registry_db_data:
+    driver: local

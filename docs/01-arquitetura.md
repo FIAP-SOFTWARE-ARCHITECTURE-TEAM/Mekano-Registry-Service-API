@@ -58,13 +58,12 @@ com.fiap.mekano.registry
 │   └── service
 ├── infrastructure
 │   ├── entity
-│   ├── repository
 │   ├── mapper
-│   ├── audit
-│   └── config
+│   └── repository
 └── rest
     ├── api
     ├── dto
+    ├── exception
     └── mapper
 ```
 
@@ -88,11 +87,13 @@ com.fiap.mekano.registry
 Configuração principal:
 
 ```properties
+quarkus.http.port=8081
 quarkus.rest.path=/api/v4
 quarkus.datasource.db-kind=postgresql
-quarkus.datasource.jdbc.url=jdbc:postgresql://localhost:5433/mekano_registry
-quarkus.datasource.username=mekano
-quarkus.datasource.password=mekano
+quarkus.datasource.jdbc.url=${REGISTRY_DB_URL:jdbc:postgresql://localhost:5433/mekano_registry}
+quarkus.datasource.username=${REGISTRY_DB_USER:mekano}
+quarkus.datasource.password=${REGISTRY_DB_PASSWORD:mekano}
+quarkus.hibernate-orm.schema-management.strategy=none
 quarkus.flyway.migrate-at-start=true
 ```
 
@@ -133,9 +134,9 @@ Registry ──nenhuma chamada──► Supplies
 
 ### Infrastructure
 
-- Entities JPA com `BaseEntity` e auditoria.
+- Entities JPA com `BaseEntity` e auditoria (`created_by`/`updated_by` com ator `SYSTEM` nesta fase).
 - Repositórios Panache.
-- Mappers MapStruct.
+- Mappers de entidade manuais (domínio ↔ JPA).
 - Migrations Flyway em `src/main/resources/db/migration`.
 - Soft delete e índices únicos parciais.
 
@@ -172,13 +173,17 @@ Detalhes em [`03-modelo-de-dados.md`](03-modelo-de-dados.md).
 
 - `/q/health` e `/q/health/ready`.
 - `/q/metrics`.
-- Logs JSON em produção/dev.
-- Correlation ID (se o padrão do monólito for mantido).
+- `/q/openapi` e `/q/swagger-ui`.
+- Logs em texto no console (`quarkus.log.*`); JSON pode ser habilitado com `quarkus-logging-json`.
 - Sem PII nos logs.
 
 ---
 
 ## 9. Decisões arquiteturais relacionadas
 
+- [`adr/ADR-001-stack.md`](adr/ADR-001-stack.md): Java 17 + Quarkus + Maven multi-módulo.
+- [`adr/ADR-002-postgresql.md`](adr/ADR-002-postgresql.md): PostgreSQL 16 + Flyway.
 - [`adr/ADR-003-catalogo-de-pecas.md`](adr/ADR-003-catalogo-de-pecas.md): catálogo no Registry, estoque no Supplies.
+- [`adr/ADR-004-comunicacao-rest.md`](adr/ADR-004-comunicacao-rest.md): REST/JSON, RFC 7807 e paginação.
+- [`adr/ADR-005-migrations-finais.md`](adr/ADR-005-migrations-finais.md): migrations finais e seed.
 - [`07-decisoes-e-riscos.md`](07-decisoes-e-riscos.md): stack, PostgreSQL, REST, migrations finais, soft delete.

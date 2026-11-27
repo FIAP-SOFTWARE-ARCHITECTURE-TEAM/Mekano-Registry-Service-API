@@ -89,6 +89,10 @@ Detalhes em [`adr/ADR-003-catalogo-de-pecas.md`](adr/ADR-003-catalogo-de-pecas.m
 
 ## 6. ADRs relacionados
 
-- [`adr/ADR-003-catalogo-de-pecas.md`](adr/ADR-003-catalogo-de-pecas.md)
+- [`adr/ADR-001-stack.md`](adr/ADR-001-stack.md) — stack Java 17 + Quarkus + Maven multi-módulo
+- [`adr/ADR-002-postgresql.md`](adr/ADR-002-postgresql.md) — PostgreSQL 16 + Flyway
+- [`adr/ADR-003-catalogo-de-pecas.md`](adr/ADR-003-catalogo-de-pecas.md) — catálogo no Registry, estoque no Supplies
+- [`adr/ADR-004-comunicacao-rest.md`](adr/ADR-004-comunicacao-rest.md) — REST/JSON, RFC 7807 e paginação
+- [`adr/ADR-005-migrations-finais.md`](adr/ADR-005-migrations-finais.md) — migrations finais e seed
 - [`05-testes-e-postman.md`](05-testes-e-postman.md)
 - [`03-modelo-de-dados.md`](03-modelo-de-dados.md)

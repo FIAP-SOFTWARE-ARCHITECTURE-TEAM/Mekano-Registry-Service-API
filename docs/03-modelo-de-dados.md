@@ -86,6 +86,7 @@
 - `ux_veiculos_uuid` UNIQUE (`uuid`)
 - `ux_veiculos_placa_active` UNIQUE (`placa`) WHERE `is_active = TRUE AND deleted_at IS NULL`
 - `ix_veiculos_cliente_uuid` (`cliente_uuid`)
+- `ix_veiculos_placa` (`placa`)
 
 ### 3.3 `pecas` — somente catálogo
 

@@ -2,11 +2,22 @@
 
 API de cadastro e catálogo do projeto **Mekano** — **Fase 4**.
 
-> **Status atual:** Sprint 0 (fundação). Este repositório contém a documentação, o README e o `.gitignore`; a estrutura Maven, o Docker Compose e o CI serão adicionados na sequência do Sprint 0.
+> **Status atual:** Sprint 1 concluído — fundação (Sprint 0) + CRUD de clientes e veículos implementados, com testes de domínio, application, integração (H2) e REST. `mvn -B verify` verde.
 
 > **Prefixo de todos os endpoints:** `/api/v4`
 >
 > Exemplo: `GET http://localhost:8081/api/v4/clientes`
+
+### Status dos sprints
+
+| Sprint | Escopo | Status |
+|---|---|---|
+| 0 | Fundação: POMs, compose, Dockerfile, CI e ADRs | ✅ Implementado |
+| 1 | Clientes e veículos | ✅ Implementado |
+| 2 | Peças, serviços e batch interno | ⏳ Próximo |
+| 3 | Seed, OpenAPI e documentação | ⏳ Pendente |
+| 4 | Integração, hardening e release | ⏳ Pendente |
+| 5 | Testes e Postman | ⏳ Pendente |
 
 ---
 
@@ -161,10 +172,17 @@ A migration `V5__seed_dados_iniciais.sql` cria dados de demonstração com UUIDs
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| POST/GET/PUT/DELETE | `/api/v4/clientes` | CRUD de clientes |
-| POST/GET/PUT/DELETE | `/api/v4/veiculos` | CRUD de veículos |
-| POST/GET/PUT/DELETE | `/api/v4/pecas` | CRUD de peças (catálogo) |
-| POST/GET/PUT/DELETE | `/api/v4/servicos` | CRUD de serviços |
+| POST/GET/PUT/DELETE/PATCH | `/api/v4/clientes` | CRUD de clientes; `PATCH /{uuid}/reativar` |
+| POST/GET/PUT/DELETE/PATCH | `/api/v4/veiculos` | CRUD de veículos; `PATCH /{uuid}/reativar` |
+| POST/GET/PUT/DELETE/PATCH | `/api/v4/pecas` | CRUD de peças (catálogo) |
+| POST/GET/PUT/DELETE/PATCH | `/api/v4/servicos` | CRUD de serviços |
+
+Filtros e paginação dos endpoints implementados:
+
+- `GET /api/v4/clientes?page=0&size=20&nome=Cliente&isActive=true`
+- `GET /api/v4/veiculos?page=0&size=20&clienteUuid=...&placa=ABC1D23&isActive=true`
+- `page` default `0`, `size` default `20` (máximo `100`), resposta com `content`, `page`, `size`, `totalElements` e `totalPages`.
+- Erros no padrão RFC 7807 (`application/problem+json`).
 
 ### 8.2 Interno
 
@@ -193,7 +211,16 @@ Detalhes em [`docs/07-decisoes-e-riscos.md`](docs/07-decisoes-e-riscos.md).
 
 ## 10. Testes e Postman
 
+```bash
+./mvnw -B verify          # build completo + testes
+./mvnw test -pl registry-domain      # VOs e entidades (<3s)
+./mvnw test -pl registry-application # services com Mockito
+./mvnw test -pl registry-infrastructure # repositórios com H2
+./mvnw test -pl registry-rest        # REST Assured + health/OpenAPI
+```
+
 - Testes unitários, de integração e de REST seguem o padrão do monólito.
+- Integração e REST usam H2 em memória (`MODE=PostgreSQL`) para não depender de Docker no build.
 - A **migração dos testes automatizados** das pastas `/test` do monólito e a **organização dos JSONs do Postman** serão feitas na branch final:
   - `test/sprint-5-testes-e-postman`
 - Durante os sprints 1–4, cada PR mantém o build verde com testes mínimos das novas classes.
@@ -235,7 +262,11 @@ Plano detalhado em [`docs/02-plano-de-tarefas.md`](docs/02-plano-de-tarefas.md).
 | [`docs/05-testes-e-postman.md`](docs/05-testes-e-postman.md) | Migração de testes e Postman |
 | [`docs/06-operacao-local.md`](docs/06-operacao-local.md) | Docker, DBeaver, variáveis e troubleshooting |
 | [`docs/07-decisoes-e-riscos.md`](docs/07-decisoes-e-riscos.md) | ADRs, decisões e riscos |
+| [`docs/adr/ADR-001-stack.md`](docs/adr/ADR-001-stack.md) | Stack Java 17 + Quarkus + Maven multi-módulo |
+| [`docs/adr/ADR-002-postgresql.md`](docs/adr/ADR-002-postgresql.md) | PostgreSQL 16 + Flyway |
 | [`docs/adr/ADR-003-catalogo-de-pecas.md`](docs/adr/ADR-003-catalogo-de-pecas.md) | Catálogo no Registry × estoque no Supplies |
+| [`docs/adr/ADR-004-comunicacao-rest.md`](docs/adr/ADR-004-comunicacao-rest.md) | REST/JSON, RFC 7807 e paginação |
+| [`docs/adr/ADR-005-migrations-finais.md`](docs/adr/ADR-005-migrations-finais.md) | Migrations finais e seed |
 
 ---
 
