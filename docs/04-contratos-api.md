@@ -3,7 +3,7 @@
 **Prefixo:** `/api/v4`
 **Base local:** `http://localhost:8081/api/v4`
 
-> **Status:** clientes e veículos implementados no Sprint 1. Peças, serviços e batch interno entram no Sprint 2.
+> **Status:** clientes, veículos, catálogo de peças, serviços e batch interno implementados nos Sprints 1 e 2.
 
 ---
 
@@ -223,6 +223,8 @@ Regras:
 - Código único entre peças ativas.
 - Valor unitário > 0.
 - Não há endpoint de saldo/estoque no Registry.
+- `PUT` altera código, descrição e valor unitário; `DELETE` é soft delete e `PATCH /reativar` pode retornar `409` se o código já estiver em uso.
+- Resposta nunca inclui campos de estoque.
 
 ---
 
@@ -241,6 +243,8 @@ Content-Type: application/json
 }
 ```
 
+Resposta `201` contém `uuid`, `nome`, `descricao`, `valorUnitario`, `isActive` e `createdAt`.
+
 ### 5.2 Listar / buscar / atualizar / desativar
 
 ```http
@@ -255,6 +259,7 @@ Regras:
 
 - Nome único entre serviços ativos.
 - Valor unitário > 0.
+- `PUT` atualiza nome, descrição e valor unitário; `DELETE` é soft delete e `PATCH /reativar` pode retornar `409` se o nome já estiver em uso.
 
 ---
 
@@ -307,7 +312,10 @@ Content-Type: application/json
 - Mais de 100 UUIDs → `400`.
 - Peças inativas retornam `isActive=false`.
 - Peças inexistentes retornam em `naoEncontradas`.
+- UUIDs repetidos na entrada são processados uma única vez, mantendo a ordem da primeira ocorrência.
 - `@RolesAllowed("service:supplies-purchase")` comentado com `TODO`.
+
+O formato de `pecas[]` (`uuid`, `codigo`, `descricao`, `valorUnitario`, `isActive`) é o consumido pelo cliente REST do Supplies.
 
 ---
 
