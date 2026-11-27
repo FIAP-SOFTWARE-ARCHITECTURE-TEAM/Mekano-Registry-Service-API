@@ -6,6 +6,7 @@ import com.fiap.mekano.registry.rest.dto.CreateServicoRequest;
 import com.fiap.mekano.registry.rest.dto.ServicoPageResponse;
 import com.fiap.mekano.registry.rest.dto.ServicoResponse;
 import com.fiap.mekano.registry.rest.dto.UpdateServicoRequest;
+import com.fiap.mekano.registry.rest.exception.ProblemDetail;
 import com.fiap.mekano.registry.rest.mapper.ServicoDtoMapper;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -26,6 +27,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.net.URI;
@@ -52,6 +56,12 @@ public class ServicoResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Cadastrar servico")
+    @APIResponse(responseCode = "201", description = "Servico criado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ServicoResponse.class)))
+    @APIResponse(responseCode = "400", description = "Dados invalidos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
+    @APIResponse(responseCode = "409", description = "Nome ja cadastrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
     public Response create(@Valid CreateServicoRequest request, @Context UriInfo uriInfo) {
         Servico servico = service.create(mapper.toCommand(request));
         ServicoResponse response = mapper.toResponse(servico);
@@ -63,6 +73,8 @@ public class ServicoResource {
     // @RolesAllowed("admin")
     @GET
     @Operation(summary = "Listar servicos")
+    @APIResponse(responseCode = "200", description = "Lista paginada de servicos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ServicoPageResponse.class)))
     public Response listAll(
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("20") int size,
@@ -86,6 +98,10 @@ public class ServicoResource {
     @GET
     @Path("/{uuid}")
     @Operation(summary = "Buscar servico por UUID")
+    @APIResponse(responseCode = "200", description = "Servico encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ServicoResponse.class)))
+    @APIResponse(responseCode = "404", description = "Servico nao encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
     public Response findById(@PathParam("uuid") UUID uuid) {
         return Response.ok(mapper.toResponse(service.findById(uuid))).build();
     }
@@ -96,6 +112,14 @@ public class ServicoResource {
     @Path("/{uuid}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Atualizar servico")
+    @APIResponse(responseCode = "200", description = "Servico atualizado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ServicoResponse.class)))
+    @APIResponse(responseCode = "400", description = "Dados invalidos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
+    @APIResponse(responseCode = "404", description = "Servico nao encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
+    @APIResponse(responseCode = "409", description = "Nome ja cadastrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
     public Response update(@PathParam("uuid") UUID uuid, @Valid UpdateServicoRequest request) {
         return Response.ok(mapper.toResponse(service.update(uuid, mapper.toCommand(request)))).build();
     }
@@ -105,6 +129,9 @@ public class ServicoResource {
     @DELETE
     @Path("/{uuid}")
     @Operation(summary = "Desativar servico")
+    @APIResponse(responseCode = "204", description = "Servico desativado")
+    @APIResponse(responseCode = "404", description = "Servico nao encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
     public Response delete(@PathParam("uuid") UUID uuid) {
         service.delete(uuid);
         return Response.noContent().build();
@@ -115,6 +142,11 @@ public class ServicoResource {
     @PATCH
     @Path("/{uuid}/reativar")
     @Operation(summary = "Reativar servico")
+    @APIResponse(responseCode = "204", description = "Servico reativado")
+    @APIResponse(responseCode = "404", description = "Servico nao encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
+    @APIResponse(responseCode = "409", description = "Nome em uso por outro servico ativo",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ProblemDetail.class)))
     public Response reactivate(@PathParam("uuid") UUID uuid) {
         service.reactivate(uuid);
         return Response.noContent().build();

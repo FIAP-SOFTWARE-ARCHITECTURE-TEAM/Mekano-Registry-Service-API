@@ -11,7 +11,12 @@ import org.eclipse.microprofile.openapi.annotations.info.Info;
         info = @Info(
                 title = "Mekano Registry Service API",
                 version = "4.0.0",
-                description = "Dados mestres e catalogo do Mekano - Fase 4"
+                description = """
+                        API de dados mestres e catalogo do Mekano.
+                        Gerencia clientes, veiculos, catalogo de pecas e servicos.
+                        O endpoint interno de batch de pecas e consumido pelo Supplies.
+                        Estoque e compras pertencem ao servico Supplies.
+                        """
         )
 )
 public class RegistryApplication extends Application {

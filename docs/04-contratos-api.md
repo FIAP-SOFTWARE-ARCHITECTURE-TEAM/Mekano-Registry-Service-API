@@ -3,7 +3,7 @@
 **Prefixo:** `/api/v4`
 **Base local:** `http://localhost:8081/api/v4`
 
-> **Status:** clientes, veículos, catálogo de peças, serviços e batch interno implementados nos Sprints 1 e 2.
+> **Status:** contratos de clientes, veículos, catálogo, serviços e batch documentados para os Sprints 1–3. O documento OpenAPI gerado pela aplicação é a referência verificável dos schemas e respostas.
 
 ---
 
@@ -336,4 +336,4 @@ O formato de `pecas[]` (`uuid`, `codigo`, `descricao`, `valorUnitario`, `isActiv
 - Swagger UI: `http://localhost:8081/q/swagger-ui`
 - OpenAPI JSON: `http://localhost:8081/q/openapi`
 
-Todos os schemas devem refletir o prefixo `/api/v4` e os DTOs reais.
+O documento gerado descreve os paths sob `/api/v4`, os DTOs de request/response e as respostas de erro RFC 7807. A descrição também inclui o endpoint interno de batch de peças. Execute `mvn -B verify -pl registry-rest -am` para validar a presença dos paths e schemas esperados no OpenAPI.

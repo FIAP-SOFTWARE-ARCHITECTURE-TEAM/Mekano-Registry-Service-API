@@ -1,0 +1,283 @@
+{
+  "info": {
+    "_postman_id": "74b4439d-79fc-4ed8-b8ea-4f4aa38d20e9",
+    "name": "Mekano Registry",
+    "description": "Consultas seguras aos recursos de clientes, veiculos, catalogos e batch. Usa os UUIDs fixos do seed do Registry.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Clientes",
+      "item": [
+        {
+          "name": "Listar clientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/clientes?page=0&size=20&sort=nome,asc&isActive=true"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Retorna 200 e pagina de clientes', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json()).to.have.property('content').that.is.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Buscar cliente do seed",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/clientes/{{clienteUuid}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Retorna o cliente do seed', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().uuid).to.eql(pm.environment.get('clienteUuid'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Veiculos",
+      "item": [
+        {
+          "name": "Listar veiculos do cliente do seed",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/veiculos?page=0&size=20&sort=placa,asc&clienteUuid={{clienteUuid}}&isActive=true"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Retorna veiculos do cliente do seed', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().content).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Buscar veiculo do seed",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/veiculos/{{veiculoUuid}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Retorna o veiculo do seed', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().uuid).to.eql(pm.environment.get('veiculoUuid'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Pecas - catalogo",
+      "item": [
+        {
+          "name": "Listar pecas do catalogo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/pecas?page=0&size=20&sort=codigo,asc&isActive=true"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Retorna pagina do catalogo sem campos de estoque', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.content).to.be.an('array');",
+                  "  body.content.forEach(function (peca) {",
+                  "    pm.expect(peca).not.to.have.property('saldoAtual');",
+                  "    pm.expect(peca).not.to.have.property('saldoReservado');",
+                  "    pm.expect(peca).not.to.have.property('estoqueMinimo');",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Buscar peca PEA-001 do seed",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/pecas/{{peca1Uuid}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Retorna PEA-001 do catalogo', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().codigo).to.eql('PEA-001');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Consultar pecas em lote (Supplies)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pecaUuids\": [\n    \"{{peca1Uuid}}\",\n    \"{{peca2Uuid}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/internal/pecas/batch"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Batch retorna ambas as pecas do seed', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.pecas).to.have.length(2);",
+                  "  pm.expect(body.naoEncontradas).to.be.empty;",
+                  "  pm.expect(body.pecas[0]).to.have.property('isActive');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Servicos",
+      "item": [
+        {
+          "name": "Listar servicos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/servicos?page=0&size=20&sort=nome,asc&isActive=true"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Retorna pagina de servicos', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().content).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Buscar servico Troca de Oleo do seed",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/servicos/{{servico1Uuid}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Retorna servico Troca de Oleo do seed', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().nome).to.eql('Troca de Óleo');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Buscar servico Alinhamento do seed",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/servicos/{{servico2Uuid}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Retorna servico Alinhamento do seed', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().uuid).to.eql(pm.environment.get('servico2Uuid'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    }
+  ]
+}

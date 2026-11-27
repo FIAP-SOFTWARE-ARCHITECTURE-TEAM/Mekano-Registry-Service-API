@@ -2,7 +2,7 @@
 
 API de cadastro e catálogo do projeto **Mekano** — **Fase 4**.
 
-> **Status atual:** Sprint 1 concluído — fundação (Sprint 0) + CRUD de clientes e veículos implementados, com testes de domínio, application, integração (H2) e REST. `mvn -B verify` verde.
+> **Status atual:** Sprints 0–3 implementados — fundação, CRUDs, batch de peças, seed, OpenAPI e coleção Postman base. Build e suíte local verificados.
 
 > **Prefixo de todos os endpoints:** `/api/v4`
 >
@@ -14,8 +14,8 @@ API de cadastro e catálogo do projeto **Mekano** — **Fase 4**.
 |---|---|---|
 | 0 | Fundação: POMs, compose, Dockerfile, CI e ADRs | ✅ Implementado |
 | 1 | Clientes e veículos | ✅ Implementado |
-| 2 | Peças, serviços e batch interno | ⏳ Próximo |
-| 3 | Seed, OpenAPI e documentação | ⏳ Pendente |
+| 2 | Peças, serviços e batch interno | ✅ Implementado |
+| 3 | Seed, OpenAPI, Postman base e documentação | ✅ Implementado |
 | 4 | Integração, hardening e release | ⏳ Pendente |
 | 5 | Testes e Postman | ⏳ Pendente |
 
@@ -181,6 +181,8 @@ Filtros e paginação dos endpoints implementados:
 
 - `GET /api/v4/clientes?page=0&size=20&nome=Cliente&isActive=true`
 - `GET /api/v4/veiculos?page=0&size=20&clienteUuid=...&placa=ABC1D23&isActive=true`
+- `GET /api/v4/pecas?page=0&size=20&codigo=PEA&descricao=Filtro&isActive=true`
+- `GET /api/v4/servicos?page=0&size=20&nome=Troca&isActive=true`
 - `page` default `0`, `size` default `20` (máximo `100`), resposta com `content`, `page`, `size`, `totalElements` e `totalPages`.
 - Erros no padrão RFC 7807 (`application/problem+json`).
 
@@ -191,6 +193,9 @@ Filtros e paginação dos endpoints implementados:
 | POST | `/api/v4/internal/pecas/batch` | Consulta em lote de peças para o Supplies |
 
 Contratos completos em [`docs/04-contratos-api.md`](docs/04-contratos-api.md).
+
+O batch recebe de 1 a 100 UUIDs e retorna `pecas` e `naoEncontradas`; peças inativas são incluídas com `isActive=false`.
+OpenAPI: `http://localhost:8081/q/openapi`; Swagger UI: `http://localhost:8081/q/swagger-ui`.
 
 ---
 
@@ -221,7 +226,11 @@ Detalhes em [`docs/07-decisoes-e-riscos.md`](docs/07-decisoes-e-riscos.md).
 
 - Testes unitários, de integração e de REST seguem o padrão do monólito.
 - Integração e REST usam H2 em memória (`MODE=PostgreSQL`) para não depender de Docker no build.
-- A **migração dos testes automatizados** das pastas `/test` do monólito e a **organização dos JSONs do Postman** serão feitas na branch final:
+- O teste do seed reaplica V5 e confirma os seis registros sem duplicação; V1–V5 foram verificadas em PostgreSQL 16 descartável.
+- A coleção Postman base usa o environment `Mekano Registry Local` e pode ser executada em modo somente leitura após aplicar o seed.
+- Coleção: [`docs/postman/Mekano-Registry.postman_collection.json`](docs/postman/Mekano-Registry.postman_collection.json).
+- Environment: [`docs/postman/Mekano-Registry-Local.postman_environment.json`](docs/postman/Mekano-Registry-Local.postman_environment.json).
+- A **migração completa dos testes automatizados** das pastas `/test` do monólito e a expansão final dos cenários Postman serão feitas na branch:
   - `test/sprint-5-testes-e-postman`
 - Durante os sprints 1–4, cada PR mantém o build verde com testes mínimos das novas classes.
 - Estratégia completa em [`docs/05-testes-e-postman.md`](docs/05-testes-e-postman.md).

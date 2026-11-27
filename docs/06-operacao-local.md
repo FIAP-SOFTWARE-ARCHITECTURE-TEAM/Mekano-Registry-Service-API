@@ -106,6 +106,8 @@ Tabelas esperadas após o seed:
 - `servicos`
 - `flyway_schema_history`
 
+Para conferir o seed, consulte as tabelas `clientes`, `veiculos`, `servicos` e `pecas`. Os UUIDs fixos estão listados na seção **Seed inicial** do README. O Registry não cria estoque: a migration de estoque inicial pertence ao serviço Supplies.
+
 ---
 
 ## 6. Endpoints úteis
@@ -113,6 +115,14 @@ Tabelas esperadas após o seed:
 | Recurso | URL |
 |---|---|
 | API | `http://localhost:8081/api/v4` |
+| OpenAPI JSON | `http://localhost:8081/q/openapi` |
+| Swagger UI | `http://localhost:8081/q/swagger-ui` |
+
+## 7. Postman
+
+Importe no Postman a coleção `docs/postman/Mekano-Registry.postman_collection.json` e o environment `docs/postman/Mekano-Registry-Local.postman_environment.json`. Selecione **Mekano Registry Local** antes de executar a coleção. O environment aponta para `http://localhost:8081/api/v4` e inclui os UUIDs fixos do seed.
+
+A coleção base contém consultas de leitura e a chamada de batch interno; suba a API e aplique as migrations antes de executá-la. Consulte [`docs/05-testes-e-postman.md`](05-testes-e-postman.md) para detalhes sobre escopo e testes.
 | Swagger UI | `http://localhost:8081/q/swagger-ui` |
 | OpenAPI | `http://localhost:8081/q/openapi` |
 | Health | `http://localhost:8081/q/health` |
