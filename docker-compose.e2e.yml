@@ -1,0 +1,92 @@
+services:
+  registry-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: mekano_registry_e2e
+      POSTGRES_USER: mekano
+      POSTGRES_PASSWORD: e2e-local-only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mekano -d mekano_registry_e2e"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    volumes:
+      - registry_e2e_data:/var/lib/postgresql/data
+    networks:
+      - mekano-e2e
+
+  registry-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${REGISTRY_E2E_API_PORT:-18081}:8081"
+    environment:
+      QUARKUS_PROFILE: prod
+      REGISTRY_DB_URL: jdbc:postgresql://registry-db:5432/mekano_registry_e2e
+      REGISTRY_DB_USER: mekano
+      REGISTRY_DB_PASSWORD: e2e-local-only
+    depends_on:
+      registry-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8081/q/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+    networks:
+      - mekano-e2e
+
+  supplies-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: mekano_supplies_e2e
+      POSTGRES_USER: mekano
+      POSTGRES_PASSWORD: e2e-local-only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mekano -d mekano_supplies_e2e"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    volumes:
+      - supplies_e2e_data:/var/lib/postgresql/data
+    networks:
+      - mekano-e2e
+
+  supplies-api:
+    build:
+      context: ../Mekano-Supplies-Purchase-Request-Service-API
+      dockerfile: Dockerfile
+    ports:
+      - "${SUPPLIES_E2E_API_PORT:-18082}:8082"
+    environment:
+      QUARKUS_PROFILE: prod
+      SUPPLIES_DB_HOST: supplies-db
+      SUPPLIES_DB_PORT: 5432
+      SUPPLIES_DB_NAME: mekano_supplies_e2e
+      SUPPLIES_DB_USER: mekano
+      SUPPLIES_DB_PASSWORD: e2e-local-only
+      REGISTRY_URL: http://registry-api:8081
+      REGISTRY_TIMEOUT_MS: 3000
+    depends_on:
+      supplies-db:
+        condition: service_healthy
+      registry-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8082/q/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+    networks:
+      - mekano-e2e
+
+networks:
+  mekano-e2e:
+    driver: bridge
+
+volumes:
+  registry_e2e_data:
+  supplies_e2e_data:
