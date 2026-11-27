@@ -123,6 +123,25 @@ Para conferir o seed, consulte as tabelas `clientes`, `veiculos`, `servicos` e `
 Importe no Postman a coleção `docs/postman/Mekano-Registry.postman_collection.json` e o environment `docs/postman/Mekano-Registry-Local.postman_environment.json`. Selecione **Mekano Registry Local** antes de executar a coleção. O environment aponta para `http://localhost:8081/api/v4` e inclui os UUIDs fixos do seed.
 
 A coleção base contém consultas de leitura e a chamada de batch interno; suba a API e aplique as migrations antes de executá-la. Consulte [`docs/05-testes-e-postman.md`](05-testes-e-postman.md) para detalhes sobre escopo e testes.
+
+## 8. E2E Registry + Supplies
+
+O E2E usa um Compose e volumes isolados; não interfere nos containers locais usuais. Mantenha os repositórios Registry e Supplies como diretórios irmãos. Na raiz do Registry, execute:
+
+```powershell
+docker compose -p mekano-sprint4-e2e -f docker-compose.e2e.yml up -d --build
+.\scripts\Test-RegistrySuppliesE2E.ps1
+```
+
+O teste confirma que o Supplies cria uma requisição usando o catálogo real do Registry, rejeita uma peça inexistente com `404` e uma peça inativa com `409`. A peça seeded usada no cenário de inatividade é reativada em `finally`, mesmo quando a asserção falha.
+
+Depois do teste, remova somente os containers e volumes deste projeto isolado:
+
+```powershell
+docker compose -p mekano-sprint4-e2e -f docker-compose.e2e.yml down -v
+```
+
+Para inspecionar falhas antes da limpeza: `docker compose -p mekano-sprint4-e2e -f docker-compose.e2e.yml logs --tail=100`.
 | Swagger UI | `http://localhost:8081/q/swagger-ui` |
 | OpenAPI | `http://localhost:8081/q/openapi` |
 | Health | `http://localhost:8081/q/health` |

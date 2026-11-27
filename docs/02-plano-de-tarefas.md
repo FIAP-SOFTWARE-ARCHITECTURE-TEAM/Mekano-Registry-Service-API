@@ -222,26 +222,26 @@ Validar o contrato com o Supplies, fazer hardening e preparar a release.
 
 ### Tarefas
 
-- [ ] Contract tests do batch com o cliente do Supplies.
-- [ ] E2E com os dois serviços:
+- [x] Contract tests do batch com o cliente do Supplies (WireMock).
+- [x] E2E com os dois serviços em Compose isolado:
   - Registry com seed;
   - Supplies criando requisição com peça do seed;
   - validação do batch;
   - respostas de peça inexistente/inativa.
-- [ ] Hardening de erros e timeout do cliente.
-- [ ] Auditoria de roles comentadas em todos os endpoints.
-- [ ] README e docs finais.
-- [ ] Diagramas Mermaid (arquitetura e fluxo de batch).
-- [ ] Tag `v4.0.0` (release acadêmica da fase 4).
+- [x] Hardening de erros, validação do contrato e timeout do cliente.
+- [x] Auditoria de roles comentadas em todos os endpoints.
+- [x] README e docs finais.
+- [x] Diagramas Mermaid (arquitetura e fluxo de batch).
+- [ ] Tag `v4.0.0` (criar após merge do PR final).
 - [ ] PR final.
 
 ### Critérios de aceite
 
-- [ ] `mvn -B verify` verde.
-- [ ] Compose sobe os dois serviços.
-- [ ] E2E do batch verde.
-- [ ] Documentação completa.
-- [ ] Nenhum endpoint sem `@RolesAllowed` comentado.
+- [x] `mvn -B verify -pl registry-rest -am` e `mvn -B verify -pl supplies-rest -am` verdes.
+- [x] Compose sobe os dois serviços.
+- [x] E2E do batch verde.
+- [x] Documentação completa.
+- [x] Nenhum endpoint sem `@RolesAllowed` comentado.
 - [ ] Release tagueada.
 
 ---

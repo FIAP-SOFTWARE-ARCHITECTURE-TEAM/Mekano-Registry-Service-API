@@ -337,3 +337,13 @@ O formato de `pecas[]` (`uuid`, `codigo`, `descricao`, `valorUnitario`, `isActiv
 - OpenAPI JSON: `http://localhost:8081/q/openapi`
 
 O documento gerado descreve os paths sob `/api/v4`, os DTOs de request/response e as respostas de erro RFC 7807. A descrição também inclui o endpoint interno de batch de peças. Execute `mvn -B verify -pl registry-rest -am` para validar a presença dos paths e schemas esperados no OpenAPI.
+
+## 9. Integração com Supplies
+
+O Supplies chama `POST /api/v4/internal/pecas/batch` ao criar uma requisição. O batch deve retornar exatamente uma classificação para cada UUID solicitado: o objeto da peça em `pecas` (inclusive quando inativa) ou o UUID em `naoEncontradas`.
+
+- UUID inexistente → o Supplies responde `404`.
+- Peça encontrada com `isActive=false` → o Supplies responde `409`.
+- Timeout, falha HTTP ou resposta incompleta/inválida do Registry → o Supplies responde `503`.
+
+O cliente usa timeout configurável (`REGISTRY_TIMEOUT_MS`, padrão de 3000 ms). Os cenários reais de integração são exercitados por `scripts/Test-RegistrySuppliesE2E.ps1`.
